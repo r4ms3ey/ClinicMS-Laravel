@@ -2,64 +2,125 @@
 
 Laravel 5.4 based clinic management system.
 
+## Project Status / Compatibility
+
+- Framework: Laravel 5.4
+- Database: MySQL / MariaDB
+- Recommended PHP: 7.4
+- Included local runtime: `.tools/php74/php`
+
+This project is legacy and is **not** directly compatible with PHP 8.x package constraints.
+
 ## Requirements
 
 - Windows
-- MySQL (XAMPP/Laragon/MySQL Server)
+- MySQL server (XAMPP, Laragon, or standalone MySQL/MariaDB)
 - Composer
-- PHP 7.4 (this project includes a local runtime in `.tools/php74/php`)
+- PHP 7.4 (use included local runtime in this repo)
 
-## Quick Start (Windows)
+## Setup (Windows)
 
-1. Open PowerShell in the project root.
-2. Use local PHP 7.4 for this session:
+### 1) Open PowerShell in project root
 
-	```powershell
-	$phpDir = Resolve-Path ".tools\php74\php"
-	$env:PATH = "$phpDir;$env:PATH"
-	php -v
-	```
+```powershell
+Set-Location "D:\dead\ClinicMS-Laravel"
+```
 
-3. Install dependencies:
+### 2) Use local PHP 7.4 for current terminal session
 
-	```powershell
-	composer install
-	```
+```powershell
+$phpDir = Resolve-Path ".tools\php74\php"
+$env:PATH = "$phpDir;$env:PATH"
+php -v
+```
 
-4. Create database and import SQL dump:
+### 3) Install PHP dependencies
 
-	```powershell
-	# Example using XAMPP mysql client
-	$mysql = "C:\xampp\mysql\bin\mysql.exe"
-	& $mysql -u root -e "CREATE DATABASE IF NOT EXISTS climslara CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-	Get-Content -Raw ".\DATABASE FILE\climslara.sql" | & $mysql -u root climslara
-	```
+```powershell
+composer install
+```
 
-5. Ensure `.env` database values are correct:
+### 4) Configure environment
 
-	- DB_CONNECTION=mysql
-	- DB_HOST=localhost
-	- DB_PORT=3306
-	- DB_DATABASE=climslara
-	- DB_USERNAME=root
-	- DB_PASSWORD=
+The project already includes `.env`. Confirm DB values are correct:
 
-6. Start the app:
+- DB_CONNECTION=mysql
+- DB_HOST=localhost
+- DB_PORT=3306
+- DB_DATABASE=climslara
+- DB_USERNAME=root
+- DB_PASSWORD=
 
-	```powershell
-	php artisan serve --host=127.0.0.1 --port=8000
-	```
+### 5) Create and import database
 
-7. Open in browser:
+```powershell
+# Example using XAMPP mysql client
+$mysql = "C:\xampp\mysql\bin\mysql.exe"
+& $mysql -u root -e "CREATE DATABASE IF NOT EXISTS climslara CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+Get-Content -Raw ".\DATABASE FILE\climslara.sql" | & $mysql -u root climslara
+```
 
-	- http://127.0.0.1:8000
+## Run Application
+
+```powershell
+php artisan serve --host=127.0.0.1 --port=8000
+```
+
+Open:
+
+- http://127.0.0.1:8000
 
 ## Default Login
 
 - Username: admin
 - Password: RAMSEY
 
-## Notes
+## Update SQL Dump from Current DB
 
-- This codebase is Laravel 5.4 and is not compatible with modern PHP 8.x without package upgrades.
-- If `composer install` fails on PHP 8.x, switch to the included PHP 7.4 runtime first.
+If you changed data/schema in local MySQL and want to replace `DATABASE FILE/climslara.sql`:
+
+```powershell
+$mysqldump = "C:\xampp\mysql\bin\mysqldump.exe"
+$outFile = "D:\dead\ClinicMS-Laravel\DATABASE FILE\climslara.sql"
+& $mysqldump -u root --databases climslara --routines --triggers --events --single-transaction --default-character-set=utf8mb4 | Set-Content -Encoding UTF8 $outFile
+```
+
+## Troubleshooting
+
+### `composer install` fails with PHP version errors
+
+Cause: terminal is using PHP 8.x.
+
+Fix:
+
+```powershell
+$phpDir = Resolve-Path ".tools\php74\php"
+$env:PATH = "$phpDir;$env:PATH"
+php -v
+composer install
+```
+
+### `Unknown database 'climslara'`
+
+Database not created/imported yet. Run the database import step above.
+
+### `php artisan serve` fails
+
+Check:
+
+- PHP 7.4 is active in current terminal (`php -v`)
+- `vendor` exists (run `composer install`)
+- database credentials in `.env` are correct
+
+## Useful Commands
+
+```powershell
+# Laravel version
+php artisan --version
+
+# Clear caches
+php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
+php artisan view:clear
+```
